@@ -17,6 +17,7 @@
         <!-- other head elements -->
 
         <!-- Scripts -->
+        <script src="http://localhost:8097"></script>
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])

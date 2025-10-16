@@ -1,4 +1,5 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import MainLogo from '@/Components/MainLogo';
 import { Link } from '@inertiajs/react';
 import Logo from '../../images/logo.png';
 
@@ -10,11 +11,7 @@ export default function Guest({ children }) {
                 {/* Left side — Logo */}
                 <div className="w-full md:w-1/2 bg-gray-50 flex justify-center items-center p-8">
                     <Link href="/">
-                        <img
-                            className="w-64 max-w-full object-contain"
-                            src={Logo}
-                            alt="Loan Management System"
-                        />
+                        <MainLogo/>
                     </Link>
                 </div>
 

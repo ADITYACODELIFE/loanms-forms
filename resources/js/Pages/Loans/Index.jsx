@@ -6,11 +6,18 @@ import { Head } from '@inertiajs/react';
 
 export default function Index({ auth }) {
     const [loans, setLoans] = useState([]);
-
+    axios.defaults.withCredentials = true; // important!
+    // useEffect(() => {
+    //     axios.get('/api/loans')
+    //         .then(res => setLoans(res.data))
+    //         .catch(console.error);
+    // }, []); 
     useEffect(() => {
-        axios.get('/api/loans')
+    axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie').then(() => {
+        axios.get('http://127.0.0.1:8000/api/loans')
             .then(res => setLoans(res.data))
-            .catch(console.error);
+            .catch(err => console.error(err));
+        });
     }, []);
     return (
         <AuthenticatedLayout

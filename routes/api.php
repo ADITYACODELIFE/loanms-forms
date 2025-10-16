@@ -3,6 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\Api\OrganisationController;
+use App\Http\Controllers\Api\LoanTempCustomerController;
+use App\Models\LoanTempCustomer;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,3 +30,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/loans', [LoanController::class, 'index']);
     Route::post('/loans', [LoanController::class, 'store']);
 });
+
+Route::middleware('auth:sanctum')->get('/customer-list', [CustomerController::class, 'customer_list']);
+Route::middleware('auth:sanctum')->get('/company-list', [CompanyController::class, 'company_list']);
+Route::middleware('auth:sanctum')->get('/organisation-list', [OrganisationController::class, 'organisation_list']);
+
+Route::middleware('auth:sanctum')->group(function() {
+    Route::post('/temp-customer', [LoanTempCustomerController::class, 'store']);
+});
+Route::middleware('auth:sanctum')->get('/fetch-loan-temp-customer', [LoanTempCustomerController::class, 'fetch']);
+Route::middleware('auth:sanctum')->post('/save-new-customer-for-new-loan', [CustomerController::class, 'store']);
