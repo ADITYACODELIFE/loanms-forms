@@ -11,6 +11,7 @@ import Col from 'react-bootstrap/Col';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Tab, Tabs } from "react-bootstrap";
 import useBeforeUnload from '@/Components/useBeforeUnload';
+import LoanDocumentsUpload from '@/Components/LoanDocumentsUpload';
 
 export default function Create({ auth }) {
     const [isFormDirty, setIsFormDirty] = useState(false);
@@ -53,6 +54,19 @@ export default function Create({ auth }) {
         bank_branch: "",
         bank_account_no: "",
         remarks: "",
+    });
+    const [loanDocumentFormData, setLoanDocumentFormData] = useState({
+        loan_id: "",
+        customer_id: "",
+        doc_type: "",
+        file_name: "New",
+        file_path: "",
+        uploaded_by: "",
+        uploaded_on: "",
+        verified_by: "",
+        verified_on: "",
+        verification_status: "",
+        notes: ""
     });
     const [message, setMessage] = useState('');
     const [step, setStep] = useState(1);
@@ -149,22 +163,95 @@ export default function Create({ auth }) {
         const { name, value } = e.target;
         setLoanFormData((prev) => ({ ...prev, [name]: value }));
     };
+    const loanDocumentHandleChange = (e) => {
+        const { name, value } = e.target;
+        setLoanDocumentFormData((prev) => ({ ...prev, [name]: value }));
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsFormDirty(true);
         setMessage('');
 
         try {
-            await axios.post('/api/loans', loanFormData);
-            setMessage('✅ Loan application submitted successfully!');
+            const res = await axios.post('/api/loans', loanFormData);
+            setMessage('✅ Loan application data saved successfully!');
+            const savedLoan = res.data.loan;
+            setLoanFormData({
+                id: savedLoan.id,
+                company_id: savedLoan.company_id,
+                customer_id: savedLoan.customer_id,
+                organisation_id: savedLoan.organisation_id,
+                loan_type: savedLoan.loan_type,
+                purpose: savedLoan.purpose || "",
+                other_purpose_text: savedLoan.other_purpose_text || "",
+                loan_amount_applied: savedLoan.loan_amount_applied || "",
+                tenure_fortnight: savedLoan.tenure_fortnight || "",
+                interest_rate: savedLoan.interest_rate || "",
+                processing_fee: savedLoan.processing_fee || "",
+                bank_name: savedLoan.bank_name || "",
+                bank_branch: savedLoan.bank_branch || "",
+                bank_account_no: savedLoan.bank_account_no || "",
+                remarks: savedLoan.remarks || "",
+            });
             setFormData({
-                borrower_name: '',
-                amount: '',
-                interest_rate: '',
-                term_months: '',
-                purpose: '',
+                company_id: "",
+                organisation_id: "",
+                first_name: "",
+                last_name: "",
+                gender: "",
+                dob: "",
+                marital_status: "",
+                no_of_dependents: "",
+                phone: "",
+                email: "",
+                present_address: "",
+                permanent_address: "",
+                employee_no: "",
+                designation: "",
+                employment_type: "",
+                date_joined: "",
+                monthly_salary: "",
+                work_location: "",
+            });
+            setLoanDocumentFormData({
+                loan_id: savedLoan.id,
+                customer_id: savedLoan.customer_id,
+                doc_type: "",
+                file_name: "",
+                file_path: "",
+                uploaded_by: "",
+                uploaded_on: "",
+                verified_by: "",
+                verified_on: "",
+                verification_status: "Pending",
+                notes: ""
+            });
+            setStep(3); // Move to next tab
+        } catch (error) {
+            console.error(error);
+            setMessage('❌ Failed to save. Please check your input.');
+        }
+    };
+    const handleDocumentSubmit = async (e) => {
+        e.preventDefault();
+        setIsFormDirty(true);
+        setMessage('');
+
+        try {
+            await axios.post('/api/loans-document', loanFormData);
+            setMessage('✅ Loan application submitted successfully!');
+            setLoanDocumentFormData({
+                loan_id: "",
                 customer_id: "",
-                loan_type: ""
+                doc_type: "",
+                file_name: "New",
+                file_path: "",
+                uploaded_by: "",
+                uploaded_on: "",
+                verified_by: "",
+                verified_on: "",
+                verification_status: "",
+                notes: ""
             });
         } catch (error) {
             console.error(error);
@@ -545,7 +632,7 @@ export default function Create({ auth }) {
                                     </Row>
                                 </form>
                                 )}
-                                {step === 2 && (
+                            {step === 2 && (
                                 <form onSubmit={handleSubmit}> {/* Loan application form here */}
                                     <div className="row mb-3">
                                         <div className="col-md-4">
@@ -672,7 +759,14 @@ export default function Create({ auth }) {
                                         </Col>
                                     </Row>
                                 </form>
-                                )}
+                            )}
+                            {step === 3 && ( 
+                                <LoanDocumentsUpload
+                                    loanFormData={loanFormData}
+                                    setLoanFormData={setLoanFormData}
+                                    onUploadComplete={() => setMessage("✅ All steps completed successfully!")}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

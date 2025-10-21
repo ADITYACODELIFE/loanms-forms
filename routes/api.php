@@ -2,11 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoanController;
+use App\Http\Controllers\Api\LoanController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\OrganisationController;
 use App\Http\Controllers\Api\LoanTempCustomerController;
+use App\Http\Controllers\Api\DocumentUploadController;
 use App\Models\LoanTempCustomer;
 /*
 |--------------------------------------------------------------------------
@@ -40,3 +41,10 @@ Route::middleware('auth:sanctum')->group(function() {
 });
 Route::middleware('auth:sanctum')->get('/fetch-loan-temp-customer', [LoanTempCustomerController::class, 'fetch']);
 Route::middleware('auth:sanctum')->post('/save-new-customer-for-new-loan', [CustomerController::class, 'store']);
+
+// Route::middleware('auth:sanctum')->post('/upload-loan-documents', [LoanController::class, 'store']);
+
+Route::post('/document-upload', [DocumentUploadController::class, 'store']);
+Route::get('/document-upload', [DocumentUploadController::class, 'index']);
+Route::get('/document-upload/download/{id}', [DocumentUploadController::class, 'download']);
+Route::post('/document-upload/verify/{id}', [DocumentUploadController::class, 'verify']);
