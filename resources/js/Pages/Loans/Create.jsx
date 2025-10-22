@@ -1,7 +1,7 @@
 import { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
@@ -12,6 +12,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Tab, Tabs } from "react-bootstrap";
 import useBeforeUnload from '@/Components/useBeforeUnload';
 import LoanDocumentsUpload from '@/Components/LoanDocumentsUpload';
+//icon pack
+import { ArrowLeft } from "lucide-react";
 
 export default function Create({ auth }) {
     const [isFormDirty, setIsFormDirty] = useState(false);
@@ -266,6 +268,8 @@ export default function Create({ auth }) {
             const res = await axios.post('/api/save-new-customer-for-new-loan', formData, { withCredentials: true });
             await fetchCustomers();
             const cusId = res.data.temp_customer_id;
+            const savedCustomer = res.data.customer;
+            console.log("savedCustomer:",savedCustomer);
             setTempCustomerId(res.data.temp_customer_id);
             // const cleanData = Object.fromEntries(
             //     Object.entries({'customer_id': tempCustomerId}).map(([k, v]) => [k, v ?? ""])
@@ -275,8 +279,8 @@ export default function Create({ auth }) {
             setLoanFormData(prev => ({
                 ...prev,
                 customer_id: cusId,
-                company_id: "",
-                organisation_id: "",
+                company_id: savedCustomer.company_id || "",
+                organisation_id: savedCustomer.organisation_id || "",
                 loan_type: "New",
                 purpose: "",
                 other_purpose_text: "",
@@ -295,7 +299,8 @@ export default function Create({ auth }) {
             setStep(2); // Move to next tab
         } catch (error) {
             console.error(error);
-            setMessage('❌ Please correct the errors before proceeding.');
+            // setMessage('❌ Please correct the errors before proceeding.');
+            setMessage('❌' + error);
         }
     };
     useEffect(()=>{
@@ -310,7 +315,8 @@ export default function Create({ auth }) {
 
         .then((res) => {
             if(isEmpty(res.data)){
-                setMessage('ℹ️ No saved customer data found. Please fill out the form.')
+                // setMessage('ℹ️ No saved customer data found. Please fill out the form.')
+                setMessage('')
             } else {
                 setMessage('✅ Loaded saved customer data. You can continue editing.');
                 const cleanData = Object.fromEntries(
@@ -332,9 +338,22 @@ export default function Create({ auth }) {
             <Alert key="primary" variant="primary">
                 Please go through the tabs to complete the loan application.
             </Alert>
-            <div className="py-8">
+            <div className="py-2">
                 <div className="max-w-9xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        {/* Top Action Bar */}
+                        <div className="flex justify-between items-center sm:rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-gray-700">
+                                &nbsp;
+                            </h3>
+                            <Link
+                                href={route('loans')}
+                                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition whitespace-nowrap w-fit"
+                            >
+                                <ArrowLeft size={18} strokeWidth={2} />
+                                <span>Back to the List</span>
+                            </Link>
+                        </div>
                         <div className="p-6 text-gray-900">
                             {message && (
                                 <div className={`mb-4 p-3 rounded ${
@@ -753,8 +772,8 @@ export default function Create({ auth }) {
                                     </div>
                                     <Row className="mt-4 text-end">
                                         <Col>
-                                            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded text-end">
-                                                Submit Loan Application
+                                            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 mt-3 rounded text-center">
+                                                Save & Upload Documents →
                                             </button>
                                         </Col>
                                     </Row>

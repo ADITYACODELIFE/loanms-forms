@@ -48,3 +48,8 @@ Route::post('/document-upload', [DocumentUploadController::class, 'store']);
 Route::get('/document-upload', [DocumentUploadController::class, 'index']);
 Route::get('/document-upload/download/{id}', [DocumentUploadController::class, 'download']);
 Route::post('/document-upload/verify/{id}', [DocumentUploadController::class, 'verify']);
+
+Route::get('/loans/{id}', [LoanController::class, 'show']);
+Route::post('/loans/{id}/approve', [LoanController::class, 'approve']);
+Route::post('/loans/{id}/reject', [LoanController::class, 'reject']);
+Route::delete('/loans/{id}', [LoanController::class, 'destroy']);

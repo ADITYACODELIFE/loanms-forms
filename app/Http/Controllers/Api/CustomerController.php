@@ -68,6 +68,7 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'Customer info saved temporarily.',
             'temp_customer_id' => $customer->id,
+            'customer' => $customer
         ], 201);
     }
 }

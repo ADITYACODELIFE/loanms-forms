@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LoansController;
 use App\Http\Controllers\Api\LoanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -36,11 +37,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/loans', [LoanController::class, 'index'])
+Route::get('/loans', [LoansController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('loans');
-Route::get('/loans/create', [LoanController::class, 'create'])
+
+Route::get('/loans/create', [LoansController::class, 'create'])
     ->middleware(['auth', 'verified'])
     ->name('loan-create');
+
+Route::get('/loans/{id}', function ($id) {
+    return Inertia::render('Loans/View', ['loanId' => $id]);
+})->name('loan.view');
+
+
+// Route::get('/loans/create', function () {
+//     return Inertia::render('Loans/Create');
+// })->name('loan-create');
+
+// Route::get('/loans/create', fn() => Inertia::render('Loans/Create'))->name('loan.create');
+Route::get('/loans/{id}/edit', fn($id) => Inertia::render('Loans/Edit', ['loanId' => $id]))->name('loan.edit');
+
 
 require __DIR__.'/auth.php';

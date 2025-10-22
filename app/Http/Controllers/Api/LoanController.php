@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\LoanApplication as Loan;
 
 class LoanController extends Controller
 {
@@ -12,13 +13,13 @@ class LoanController extends Controller
      */
     public function index()
     {
-        // return Loan::all();
-        return inertia('Loans/Index'); // points to resources/js/Pages/Loans/Index.jsx
+        return Loan::orderBy('id', 'desc')->get();
+        // return inertia('Loans/Index'); // points to resources/js/Pages/Loans/Index.jsx
     }
     public function create()
     {
         // return Loan::all();
-        return inertia('Loans/Create'); // points to resources/js/Pages/Loans/Create.jsx
+        // return inertia('Loans/Create'); // points to resources/js/Pages/Loans/Create.jsx
     }
 
     /**
@@ -76,7 +77,7 @@ class LoanController extends Controller
             $validated['higher_approved_date'] = $validated['higher_approved_date'] ?? null;
 
             // Create loan application
-            $loan = \App\Models\LoanApplication::create($validated);
+            $loan = Loan::create($validated);
 
             return response()->json([
                 'message' => 'Loan application created successfully.',
@@ -98,7 +99,29 @@ class LoanController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $loan = Loan::findOrFail($id);
+        return response()->json($loan);
+    }
+
+    public function approve($id)
+    {
+        $loan = Loan::findOrFail($id);
+        $loan->status = 'Approved';
+        $loan->approved_by = auth()->user()->name;
+        $loan->approved_date = now();
+        $loan->save();
+
+        return response()->json(['message' => 'Loan approved successfully.']);
+    }
+
+    public function reject($id)
+    {
+        $loan = Loan::findOrFail($id);
+        $loan->status = 'Rejected';
+        $loan->remarks = 'Rejected by ' . auth()->user()->name;
+        $loan->save();
+
+        return response()->json(['message' => 'Loan rejected successfully.']);
     }
 
     /**
@@ -114,6 +137,8 @@ class LoanController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $loan = Loan::findOrFail($id);
+        $loan->delete();
+        return response()->json(['message' => 'Loan deleted successfully.']);
     }
 }

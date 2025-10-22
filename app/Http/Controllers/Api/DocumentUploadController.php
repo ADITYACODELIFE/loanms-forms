@@ -17,7 +17,7 @@ class DocumentUploadController extends Controller
         $validated = $request->validate([
             'loan_id' => 'nullable|exists:loan_applications,id',
             'customer_id' => 'nullable|exists:customers,id',
-            // 'doc_type' => 'required|in:ID,Payslip,BankStatement,EmploymentLetter,ResumptionSheet,ISDA_Signed,LoanForm_Scanned,ConsentVideo,Other',
+            'doc_type' => 'required|in:ID,Payslip,BankStatement,EmploymentLetter,ResumptionSheet,ISDA_Signed,LoanForm_Scanned,ConsentVideo,Other',
             'file' => 'required|file|mimes:pdf|max:5120', // max 5MB, only PDF
             'notes' => 'nullable|string|max:500'
         ]);
@@ -32,7 +32,7 @@ class DocumentUploadController extends Controller
             $document = DocumentUpload::create([
                 'loan_id' => $validated['loan_id'] ?? null,
                 'customer_id' => $validated['customer_id'] ?? null,
-                // 'doc_type' => $validated['doc_type'],
+                'doc_type' => $validated['doc_type'],
                 'doc_type' => "EmploymentLetter",
                 'file_name' => $originalName,
                 'file_path' => $filePath,
