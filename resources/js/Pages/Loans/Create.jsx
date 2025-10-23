@@ -12,6 +12,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Tab, Tabs } from "react-bootstrap";
 import useBeforeUnload from '@/Components/useBeforeUnload';
 import LoanDocumentsUpload from '@/Components/LoanDocumentsUpload';
+import CustomerEligibilityForm from '@/Components/CustomerEligibilityForm';
 //icon pack
 import { ArrowLeft } from "lucide-react";
 
@@ -22,6 +23,7 @@ export default function Create({ auth }) {
     const [organisations, setOrganisations] = useState([]);
     // const [tempCusFormData, settempCusFormData] = useState({
     const [formData, setFormData] = useState({
+        cus_id: 0,
         company_id: "",
         organisation_id: "",
         first_name: "",
@@ -38,7 +40,7 @@ export default function Create({ auth }) {
         designation: "",
         employment_type: "",
         date_joined: "",
-        monthly_salary: "",
+        monthly_salary: 0.00,
         work_location: "",
     });
     const [loanFormData, setLoanFormData] = useState({
@@ -75,50 +77,6 @@ export default function Create({ auth }) {
     const [tempCustomerId, setTempCustomerId] = useState(null);
     const isEmpty = (obj) => Object.keys(obj).length === 0;
     useBeforeUnload(isFormDirty, formData);
-    // useBeforeUnload(isFormDirty, async function (e) {
-    //     // Custom action before unload, e.g., save draft
-    //     console.log("User is trying to leave with unsaved changes.");
-    //     e.preventDefault();
-    //     try {
-    //         const res = await axios.post('/api/temp-customer', formData, { withCredentials: true });
-    //         setTempCustomerId(res.data.temp_customer_id);
-    //         console.log("saved customer temp data:",res.data);
-    //         setLoanFormData({
-    //             customer_id: res.data.temp_customer_id,
-    //             company_id: "",
-    //             organisation_id: "",
-    //             loan_type: "New",
-    //             purpose: "",
-    //             other_purpose_text: "",
-    //             loan_amount_applied: "",
-    //             tenure_fortnight: "",
-    //             interest_rate: "",
-    //             processing_fee: "",
-    //             bank_name: "",
-    //             bank_branch: "",
-    //             bank_account_no: "",
-    //             remarks: "",
-    //         });
-    //         console.log("set loan form customer_id to temp id:",res.data.temp_customer_id);
-    //         console.log("set loan form customer_id setTempCustomerId:",tempCustomerId);
-    //         setMessage('✅ Please fill out the loan application form.');
-    //         setStep(2); // Move to next tab
-    //     } catch (error) {
-    //         console.error(error);
-    //         setMessage('❌ Please correct the errors before proceeding.');
-    //     }
-    // });
-    // useEffect(() => {
-    //     // Fetch Customers from the API
-    //     fetch('/api/customer-list')
-    //         .then((res)=>res.json())
-    //         .then(data => {
-    //             setCustomers(data);
-    //         })
-    //         .catch(error => {
-    //             console.error('There was an error fetching the customers!', error);
-    //         });
-    // }, []);
     const fetchCustomers = async () => {
         try {
             const res = await axios.get('/api/customer-list', { withCredentials: true });
@@ -153,9 +111,6 @@ export default function Create({ auth }) {
                 console.error('There was an error fetching the customers!', error);
             });
     }, []);
-    // const handleChange = (e) => {
-    //     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // };
     const handleChange = (e) => {
         setIsFormDirty(false);
         const { name, value } = e.target;
@@ -265,10 +220,27 @@ export default function Create({ auth }) {
         e.preventDefault();
         setIsFormDirty(false);
         try {
-            const res = await axios.post('/api/save-new-customer-for-new-loan', formData, { withCredentials: true });
-            await fetchCustomers();
-            const cusId = res.data.temp_customer_id;
-            const savedCustomer = res.data.customer;
+            //check if cus_id is zero or null, if not then we'll edit the customer instead of creating new
+            var res,savedCustomer;
+            if (formData.cus_id && formData.cus_id !== 0) {
+                //editing existing customer
+                res = await axios.post(`/api/edit-new-customer-for-new-loan/${formData.cus_id}`, formData, { withCredentials: true });
+                await fetchCustomers();
+                savedCustomer = res.data.customer;
+                // setMessage('✅ Customer data updated. Please proceed to the loan application form.');
+            } else {
+                //creating new customer
+                res = await axios.post('/api/save-new-customer-for-new-loan', formData, { withCredentials: true });
+                await fetchCustomers();
+                savedCustomer = res.data.customer;
+                //only set cus_id when creating new customer, rest fields will be left as filled                
+                setFormData((prev) => ({
+                    ...prev,
+                    cus_id: savedCustomer.id
+                }));
+            }
+            const cusId = savedCustomer.id;
+            // const savedCustomer = res.data.customer;
             console.log("savedCustomer:",savedCustomer);
             setTempCustomerId(res.data.temp_customer_id);
             // const cleanData = Object.fromEntries(
@@ -306,13 +278,6 @@ export default function Create({ auth }) {
     useEffect(()=>{
         axios.get("/api/fetch-loan-temp-customer",{withCredentials:true})
 
-        // .then((res)=>{
-        //     if (res.data) {
-        //         setFormData(res.data);
-        //         console.log("Loaded saved customer:",res.data);
-        //     }
-        // }).catch((err)=>console.error("Error loading temp customer:",err));
-
         .then((res) => {
             if(isEmpty(res.data)){
                 // setMessage('ℹ️ No saved customer data found. Please fill out the form.')
@@ -329,6 +294,10 @@ export default function Create({ auth }) {
         }).catch((err)=>console.error("Error loading temp customer:",err));
     },[]);
 
+    const handleStep = (stepNumber) => () => {
+        setStep(stepNumber);
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -342,7 +311,7 @@ export default function Create({ auth }) {
                 <div className="max-w-9xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         {/* Top Action Bar */}
-                        <div className="flex justify-between items-center sm:rounded-lg p-4">
+                        <div className="flex justify-between items-center sm:rounded-lg px-4 pt-4">
                             <h3 className="text-lg font-semibold text-gray-700">
                                 &nbsp;
                             </h3>
@@ -354,7 +323,7 @@ export default function Create({ auth }) {
                                 <span>Back to the List</span>
                             </Link>
                         </div>
-                        <div className="p-6 text-gray-900">
+                        <div className="p-6 pt-2 text-gray-900">
                             {message && (
                                 <div className={`mb-4 p-3 rounded ${
                                     message.startsWith('✅') 
@@ -371,13 +340,13 @@ export default function Create({ auth }) {
 
                             <div className="tabs">
                                 <ul className="flex border-b">
-                                    <li className={`px-4 py-2 ${step === 1 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`}>
+                                    <li className={`px-4 py-2 newloanSteps ${step === 1 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`} onClick={handleStep(1)}>
                                     Customer Info
                                     </li>
-                                    <li className={`px-4 py-2 ${step === 2 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`}>
+                                    <li className={`px-4 py-2 newloanSteps ${step === 2 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`} onClick={handleStep(2)}>
                                     Loan Application
                                     </li>
-                                    <li className={`px-4 py-2 ${step === 3 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`}>
+                                    <li className={`px-4 py-2 newloanSteps ${step === 3 ? 'border-b-2 border-indigo-600 font-semibold' : ''}`} onClick={handleStep(3)}>
                                     Document Upload
                                     </li>
                                 </ul>
@@ -387,6 +356,7 @@ export default function Create({ auth }) {
                                 <form onSubmit={handleNext}> {/* Customer form here */}
                                     <Row>
                                         <Col>
+                                            <input type ="hidden" name="cus_id" value={formData.cus_id || 0} />
                                             {/* --- Company & Organisation --- */}
                                             <div>
                                                 <label className="block text-gray-700 font-medium">Company</label>
@@ -458,6 +428,7 @@ export default function Create({ auth }) {
                                                         value={formData.gender || ""}
                                                         onChange={handleChange}
                                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                        required
                                                     >
                                                         <option value="">-- Select --</option>
                                                         <option value="Male">Male</option>
@@ -514,6 +485,7 @@ export default function Create({ auth }) {
                                                     value={formData.phone}
                                                     onChange={handleChange}
                                                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                    required
                                                 />
                                             </div>
 
@@ -525,6 +497,7 @@ export default function Create({ auth }) {
                                                     value={formData.email}
                                                     onChange={handleChange}
                                                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                    required
                                                 />
                                             </div>
                                         </Col>
@@ -656,7 +629,7 @@ export default function Create({ auth }) {
                                     <div className="row mb-3">
                                         <div className="col-md-4">
                                             <label className="form-label">Company</label>
-                                            <select className="form-select" name="company_id" value={loanFormData.company_id || 0} onChange={loanHandleChange} required>
+                                            <select className="form-select" name="company_id" value={loanFormData.company_id || 0} onChange={loanHandleChange} required aria-readonly disabled>
                                             <option value="">Select Company</option>
                                             {companies.map((c) => (
                                                 <option key={c.id} value={c.id}>{c.company_name}</option>
@@ -672,6 +645,7 @@ export default function Create({ auth }) {
                                                 value={loanFormData.customer_id || ""}  // ✅ always non-null
                                                 onChange={loanHandleChange}
                                                 required
+                                                aria-readonly disabled
                                             >
                                                 <option value="">Select Customer</option>
                                                 {customers.map((c) => (
@@ -684,7 +658,7 @@ export default function Create({ auth }) {
 
                                         <div className="col-md-4">
                                             <label className="form-label">Organisation</label>
-                                            <select className="form-select" name="organisation_id" value={loanFormData.organisation_id || 0} onChange={loanHandleChange}>
+                                            <select className="form-select" name="organisation_id" value={loanFormData.organisation_id || 0} onChange={loanHandleChange} aria-readonly disabled>
                                             <option value="">Select Organisation</option>
                                             {organisations.map((o) => (
                                                 <option key={o.id} value={o.id}>{o.organisation_name}</option>
@@ -692,30 +666,40 @@ export default function Create({ auth }) {
                                             </select>
                                         </div>
                                     </div>
-
+                                <fieldset className="fldset">
+                                    <legend className="font-semibold">Eligibility</legend>
+                                    <div className="mt-6">
+                                        {/* {loanFormData.customer_id && (
+                                            <CustomerEligibilityForm key={loanFormData.customer_id} customerId={loanFormData.customer_id} />
+                                        )} */}
+                                        <CustomerEligibilityForm customerId={loanFormData.customer_id} />
+                                    </div>
+                                </fieldset>
+                                <fieldset className="fldset">
+                                    <legend className="font-semibold">Loan Details</legend>
                                     <div className="row mb-3">
                                         <div className="col-md-4">
                                             <label className="form-label">Loan Type</label>
-                                            <select className="form-select" name="loan_type" value={loanFormData.loan_type || ""} onChange={loanHandleChange}>
-                                            <option>New</option>
-                                            <option>Consolidation</option>
-                                            <option>Rollover</option>
-                                            <option>Top-Up</option>
+                                            <select className="form-select cursor-not-allowed" disabled name="loan_type" value={loanFormData.loan_type || ""} onChange={loanHandleChange}>
+                                                <option>New</option>
+                                                <option>Consolidation</option>
+                                                <option>Rollover</option>
+                                                <option>Top-Up</option>
                                             </select>
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">Purpose</label>
-                                            <select className="form-select" name="purpose" value={loanFormData.purpose || ""} onChange={loanHandleChange}>
-                                            <option value="">Select Purpose</option>
-                                            <option>Tuition</option>
-                                            <option>Living</option>
-                                            <option>Medical</option>
-                                            <option>Appliance</option>
-                                            <option>Car</option>
-                                            <option>Travel</option>
-                                            <option>HomeImprovement</option>
-                                            <option>Other</option>
+                                            <select className="form-select cursor-not-allowed" disabled name="purpose" value={loanFormData.purpose || ""} onChange={loanHandleChange}>
+                                                <option value="">Select Purpose</option>
+                                                <option>Tuition</option>
+                                                <option>Living</option>
+                                                <option>Medical</option>
+                                                <option>Appliance</option>
+                                                <option>Car</option>
+                                                <option>Travel</option>
+                                                <option>HomeImprovement</option>
+                                                <option>Other</option>
                                             </select>
                                         </div>
 
@@ -730,49 +714,50 @@ export default function Create({ auth }) {
                                     <div className="row mb-3">
                                         <div className="col-md-3">
                                             <label className="form-label">Loan Amount Applied</label>
-                                            <input type="number" step="0.01" className="form-control" name="loan_amount_applied" value={loanFormData.loan_amount_applied} onChange={loanHandleChange} required />
+                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="loan_amount_applied" value={loanFormData.loan_amount_applied} onChange={loanHandleChange} required />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Tenure (Fortnight)</label>
-                                            <input type="number" className="form-control" name="tenure_fortnight" value={loanFormData.tenure_fortnight} onChange={loanHandleChange} required />
+                                            <input type="number" className="form-control" name="tenure_fortnight cursor-not-allowed" disabled value={loanFormData.tenure_fortnight} onChange={loanHandleChange} required />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Interest Rate (%)</label>
-                                            <input type="number" step="0.01" className="form-control" name="interest_rate" value={loanFormData.interest_rate} onChange={loanHandleChange} />
+                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="interest_rate" value={loanFormData.interest_rate} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Processing Fee</label>
-                                            <input type="number" step="0.01" className="form-control" name="processing_fee" value={loanFormData.processing_fee} onChange={loanHandleChange} />
+                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="processing_fee" value={loanFormData.processing_fee} onChange={loanHandleChange} />
                                         </div>
                                     </div>
 
                                     <div className="row mb-3">
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Name</label>
-                                            <input type="text" className="form-control" name="bank_name" value={loanFormData.bank_name} onChange={loanHandleChange} />
+                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_name" value={loanFormData.bank_name} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Branch</label>
-                                            <input type="text" className="form-control" name="bank_branch" value={loanFormData.bank_branch} onChange={loanHandleChange} />
+                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_branch" value={loanFormData.bank_branch} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Account No</label>
-                                            <input type="text" className="form-control" name="bank_account_no" value={loanFormData.bank_account_no} onChange={loanHandleChange} />
+                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_account_no" value={loanFormData.bank_account_no} onChange={loanHandleChange} />
                                         </div>
                                     </div>
 
                                     <div className="mb-3">
                                         <label className="form-label">Remarks</label>
-                                        <textarea className="form-control" name="remarks" rows="3" value={loanFormData.remarks} onChange={loanHandleChange}></textarea>
+                                        <textarea className="form-control cursor-not-allowed" disabled name="remarks" rows="3" value={loanFormData.remarks} onChange={loanHandleChange}></textarea>
                                     </div>
+                                </fieldset>
                                     <Row className="mt-4 text-end">
                                         <Col>
-                                            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 mt-3 rounded text-center">
+                                            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 mt-3 rounded text-center cursor-not-allowed" disabled>
                                                 Save & Upload Documents →
                                             </button>
                                         </Col>

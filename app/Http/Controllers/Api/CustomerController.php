@@ -26,12 +26,12 @@ class CustomerController extends Controller
             'organisation_id' => 'required|integer|exists:organisation_master,id',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'nullable|email|max:100',
-            'gender' => 'nullable|in:Male,Female,Other',
+            'email' => 'required|email|max:100',
+            'gender' => 'required|in:Male,Female,Other',
             'dob' => 'nullable|date',
             'marital_status' => 'nullable|in:Single,Married,Divorced,Widowed',
             'no_of_dependents' => 'nullable|integer|min:0',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
             'present_address' => 'nullable|string',
             'permanent_address' => 'nullable|string',
             'employee_no' => 'nullable|string|max:50',
@@ -70,5 +70,45 @@ class CustomerController extends Controller
             'temp_customer_id' => $customer->id,
             'customer' => $customer
         ], 201);
+    }
+    //function to edit new customer for new loan
+    public function edit_new_customer_for_new_loan(Request $request, $id)
+    {
+        // Validate incoming request data
+        $validated = $request->validate([
+            'company_id' => 'required|integer|exists:company_master,id',
+            'organisation_id' => 'required|integer|exists:organisation_master,id',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'gender' => 'required|in:Male,Female,Other',
+            'dob' => 'nullable|date',
+            'marital_status' => 'nullable|in:Single,Married,Divorced,Widowed',
+            'no_of_dependents' => 'nullable|integer|min:0',
+            'phone' => 'required|string|max:20',
+            'present_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
+            'employee_no' => 'nullable|string|max:50',
+            'designation' => 'nullable|string|max:100',
+            'employment_type' => 'nullable|in:Permanent,Contract',
+            'date_joined' => 'nullable|date',
+            'monthly_salary' => 'nullable|numeric',
+            'work_location' => 'nullable|string|max:100',
+            'status' => 'nullable|in:Active,Inactive',
+        ]);
+        // Find the customer by ID
+        $customer = Customer::find($id);
+        if (!$customer) {
+            return response()->json([
+                'message' => 'Customer not found.',
+            ], 404); // Not Found status code
+        }
+        // Update customer record
+        $customer->update($validated);
+        // Return the updated customer as a JSON response
+        return response()->json([
+            'message' => 'Customer info updated successfully.',
+            'customer' => $customer
+        ], 200);
     }
 }

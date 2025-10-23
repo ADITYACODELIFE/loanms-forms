@@ -3,6 +3,8 @@ import axios from "axios";
 import { Link, Head, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
+import { Pencil, Eye, Trash2 } from "lucide-react";
+
 export default function Index({ auth }) {
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -118,21 +120,24 @@ export default function Index({ auth }) {
                                                     <div className="flex justify-center gap-2">
                                                         <Link
                                                             href={route("loan.view", { id: loan.id })}
-                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs whitespace-nowrap flex items-center gap-2"
                                                         >
-                                                            View
+                                                            <Eye size={15} strokeWidth={2}/>
+                                                            <span>View</span>
                                                         </Link>
                                                         <Link
                                                             href={route("loan.edit", { id: loan.id })}
-                                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs"
+                                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs whitespace-nowrap flex items-center gap-2"
                                                         >
-                                                            Edit
+                                                            <Pencil size={15} strokeWidth={2}/>
+                                                            <span>Edit</span>
                                                         </Link>
                                                         <button
                                                             onClick={() => handleDelete(loan.id)}
-                                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs whitespace-nowrap flex items-center gap-2"
                                                         >
-                                                            Delete
+                                                            <Trash2 size={15} strokeWidth={2}/>
+                                                            <span>Delete</span>
                                                         </button>
                                                     </div>
                                                 </td>

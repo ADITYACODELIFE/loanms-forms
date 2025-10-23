@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function() {
 });
 Route::middleware('auth:sanctum')->get('/fetch-loan-temp-customer', [LoanTempCustomerController::class, 'fetch']);
 Route::middleware('auth:sanctum')->post('/save-new-customer-for-new-loan', [CustomerController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/edit-new-customer-for-new-loan/{id}', [CustomerController::class, 'edit_new_customer_for_new_loan']);
 
 // Route::middleware('auth:sanctum')->post('/upload-loan-documents', [LoanController::class, 'store']);
 
