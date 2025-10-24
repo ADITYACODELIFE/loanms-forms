@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Row, Col, Form, Button } from "react-bootstrap";
 import axios from "axios";
 
@@ -18,6 +18,15 @@ export default function CustomerEligibilityForm({ customerId }) {
     proposed_pva_amt: "",
   });
 
+  const grossSalaryRef = useRef(null);
+  const tempAllowancesRef = useRef(null);
+  const overtimeRef = useRef(null);
+  const taxRef = useRef(null);
+  const superannuationRef = useRef(null);
+  const otherDeductionsRef = useRef(null);
+  const currentFincorpDeductionRef = useRef(null);
+  const proposedPvaRef = useRef(null);
+
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState("");
 
@@ -29,7 +38,83 @@ export default function CustomerEligibilityForm({ customerId }) {
   const handleCheckEligibility = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/check-eligibility", formData);
+      //implement validations to all fields
+      if (formData.gross_salary_amt === "" || isNaN(formData.gross_salary_amt)) {
+        setMessage("⚠️ Please enter a valid Gross Salary amount.");
+        // formData.gross_salary_amt.focus();
+        if (grossSalaryRef.current) {
+          grossSalaryRef.current.focus();
+        }
+        return;
+      }
+      if (formData.temp_allowances_amt === "" || isNaN(formData.temp_allowances_amt)) {
+        setMessage("⚠️ Please enter a valid allowances amount.");
+        // formData.temp_allowances_amt.focus();
+        if (tempAllowancesRef.current) {
+          tempAllowancesRef.current.focus();
+        }
+        return;
+      }
+      if (formData.overtime_amt === "" || isNaN(formData.overtime_amt)) {
+        setMessage("⚠️ Please enter a valid overtime amount.");
+        // formData.overtime_amt.focus();
+        if (overtimeRef.current) {
+          overtimeRef.current.focus();
+        }
+        return;
+      }
+      if (formData.tax_amt === "" || isNaN(formData.tax_amt)) {
+        setMessage("⚠️ Please enter a valid tax amount.");
+        // formData.tax_amt.focus();
+        if (taxRef.current) {
+          taxRef.current.focus();
+        }
+        return;
+      }
+      if (formData.superannuation_amt === "" || isNaN(formData.superannuation_amt)) {
+        setMessage("⚠️ Please enter a valid superannuation amount.");
+        // formData.superannuation_amt.focus();
+        if (superannuationRef.current) {
+          superannuationRef.current.focus();
+        }
+        return;
+      }
+      if (formData.other_deductions_amt === "" || isNaN(formData.other_deductions_amt)) {
+        setMessage("⚠️ Please enter a valid other deductions amount.");
+        // formData.other_deductions_amt.focus();
+        if (otherDeductionsRef.current) {
+          otherDeductionsRef.current.focus();
+        }
+        return;
+      }
+      if (formData.current_fincorp_deduction_amt === "" || isNaN(formData.current_fincorp_deduction_amt)) {
+        setMessage("⚠️ Please enter a valid current fincorp deduction amount.");
+        // formData.current_fincorp_deduction_amt.focus();
+        if (currentFincorpDeductionRef.current) {
+          currentFincorpDeductionRef.current.focus();
+        }
+        return;
+      }
+      if (formData.proposed_pva_amt === "" || isNaN(formData.proposed_pva_amt)) {
+        setMessage("⚠️ Please enter a valid proposed PVA amount.");
+        // formData.proposed_pva_amt.focus();
+        if (proposedPvaRef.current) {
+          proposedPvaRef.current.focus();
+        }
+        return;
+      }
+      const formDataToSend = { ...formData };
+      // Convert all numeric fields to float
+      Object.keys(formDataToSend).forEach((key) => {
+        if (key !== "customer_id") {
+          formDataToSend[key] = parseFloat(formDataToSend[key]) || 0;
+        }
+      });
+      const formDatas = new FormData();
+      Object.entries(formDataToSend).forEach(([key, value]) => {
+        formDatas.append(key, value);
+      });
+      const res = await axios.post("/api/check-eligibility", formDatas);
       setResult(res.data); // expect backend to return calculated values
       setMessage("✅ Eligibility calculated successfully!");
     } catch (error) {
@@ -39,24 +124,30 @@ export default function CustomerEligibilityForm({ customerId }) {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6">
       <h3 className="text-lg font-semibold mb-4">Customer Eligibility Check</h3>
 
       {message && (
         <div
-          className={`mb-4 p-3 rounded ${
-            message.startsWith("✅")
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
+          className={`mb-4 p-3 rounded border
+            ${message.startsWith("✅")
+              ? "bg-green-100 text-green-700 border-green-300"
+              : message.startsWith("❌")
+              ? "bg-red-100 text-red-700 border-red-300"
+              : message.startsWith("⚠️")
+              ? "bg-yellow-100 text-yellow-700 border-yellow-300"
+              : message.startsWith("ℹ️")
+              ? "bg-blue-100 text-blue-700 border-blue-300"
+              : "bg-gray-100 text-gray-700 border-gray-300"
+            }`}
         >
           {message}
         </div>
       )}
 
-      <Form onSubmit={handleCheckEligibility}>
+
         <Row className="g-3">
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Gross Salary (PGK)</Form.Label>
               <Form.Control
@@ -68,7 +159,7 @@ export default function CustomerEligibilityForm({ customerId }) {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Temporary Allowances (PGK)</Form.Label>
               <Form.Control
@@ -80,7 +171,7 @@ export default function CustomerEligibilityForm({ customerId }) {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Overtime (PGK)</Form.Label>
               <Form.Control
@@ -93,7 +184,7 @@ export default function CustomerEligibilityForm({ customerId }) {
             </Form.Group>
           </Col>
 
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Tax Amount (PGK)</Form.Label>
               <Form.Control
@@ -105,7 +196,7 @@ export default function CustomerEligibilityForm({ customerId }) {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Superannuation (PGK)</Form.Label>
               <Form.Control
@@ -117,7 +208,7 @@ export default function CustomerEligibilityForm({ customerId }) {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Other Deductions (PGK)</Form.Label>
               <Form.Control
@@ -130,7 +221,7 @@ export default function CustomerEligibilityForm({ customerId }) {
             </Form.Group>
           </Col>
 
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Current Fincorp Deduction (PGK)</Form.Label>
               <Form.Control
@@ -142,7 +233,7 @@ export default function CustomerEligibilityForm({ customerId }) {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col md={3}>
             <Form.Group>
               <Form.Label>Proposed PVA (PGK)</Form.Label>
               <Form.Control
@@ -157,37 +248,72 @@ export default function CustomerEligibilityForm({ customerId }) {
         </Row>
 
         <div className="mt-4 text-end">
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="button" onClick={handleCheckEligibility}>
             Check Eligibility
           </Button>
         </div>
-      </Form>
 
       {result && (
         <div className="mt-6 border-t pt-4">
-          <h4 className="text-md font-semibold mb-2">Eligibility Result</h4>
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>
-              <strong>Total Net Salary:</strong> PGK {result.total_net_salary_amt}
-            </li>
-            <li>
-              <strong>50% Net:</strong> PGK {result.net_50_percent_amt}
-            </li>
-            <li>
-              <strong>50% Available:</strong> PGK {result.net_50_percent_available_amt}
-            </li>
-            <li>
-              <strong>Max Allowable PVA:</strong> PGK {result.max_allowable_pva_amt}
-            </li>
-            <li>
-              <strong>Eligibility:</strong>{" "}
-              {result.is_eligible_for_loan ? (
-                <span className="text-green-600 font-medium">Eligible ✅</span>
-              ) : (
-                <span className="text-red-600 font-medium">Not Eligible ❌</span>
-              )}
-            </li>
-          </ul>
+          <h4 className="text-lg font-semibold mb-3 text-gray-800">
+            Eligibility Result
+          </h4>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>Total Net Salary:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.total_net_salary_amt).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>50% Net:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.net_50_percent_amt).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>50% Available:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.net_50_percent_available_amt).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>Max Allowable PVA:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.max_allowable_pva_amt).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>Net After Tax & Super:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.net_after_tax_superannuation_amt).toFixed(2)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded shadow-sm">
+              <strong>Shortage:</strong>
+              <div className="text-gray-800">
+                PGK {Number(result.shortage_amt).toFixed(2)}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center">
+            <span
+              className={`inline-block px-4 py-2 rounded text-sm font-semibold ${
+                result.is_eligible_for_loan
+                  ? "bg-green-100 text-green-700 border border-green-300"
+                  : "bg-red-100 text-red-700 border border-red-300"
+              }`}
+            >
+              {result.is_eligible_for_loan ? "✅ Eligible for Loan" : "❌ Not Eligible"}
+            </span>
+          </div>
         </div>
       )}
     </div>
