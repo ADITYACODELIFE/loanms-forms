@@ -39,4 +39,8 @@ class Customer extends Model
     {
         return $this->belongsTo(OrganisationMaster::class, 'organisation_id');
     }
+    public function company()
+    {
+        return $this->belongsTo(CompanyMaster::class, 'company_id');
+    }
 }

@@ -20,6 +20,18 @@ class CustomerController extends Controller
         // Return the customers as a JSON response
         return response()->json($customers);
     }
+    //show customer details
+    public function show($id)
+    {
+        //show customer details along with company and organisation details
+        $customer = Customer::with(['company', 'organisation'])->find($id);
+        if (!$customer) {
+            return response()->json([
+                'message' => 'Customer not found.',
+            ], 404);
+        }
+        return response()->json($customer);
+    }
     //function to save new customer for new loan
     public function store(Request $request)
     {

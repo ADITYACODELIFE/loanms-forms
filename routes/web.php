@@ -41,21 +41,21 @@ Route::get('/loans', [LoansController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('loans');
 
-Route::get('/loans/create', [LoansController::class, 'create'])
+Route::middleware('auth')->get('/loans/create', [LoansController::class, 'create'])
     ->middleware(['auth', 'verified'])
     ->name('loan-create');
 
-Route::get('/loans/{id}', function ($id) {
+Route::middleware('auth')->get('/loans/{id}', function ($id) {
     return Inertia::render('Loans/View', ['loanId' => $id]);
 })->name('loan.view');
 
+Route::middleware('auth')->get('/loans/{id}/edit', fn($id) => Inertia::render('Loans/Edit', ['loanId' => $id]))->name('loan.edit');
 
-// Route::get('/loans/create', function () {
-//     return Inertia::render('Loans/Create');
-// })->name('loan-create');
-
-// Route::get('/loans/create', fn() => Inertia::render('Loans/Create'))->name('loan.create');
-Route::get('/loans/{id}/edit', fn($id) => Inertia::render('Loans/Edit', ['loanId' => $id]))->name('loan.edit');
+//customers routes
+Route::middleware('auth')->get('/customers', fn() => Inertia::render('Customers/Index'))->name('customers');
+Route::middleware('auth')->get('/customers/create', fn() => Inertia::render('Customers/Create'))->name('customer.create');
+Route::middleware('auth')->get('/customers/{id}', fn($id) => Inertia::render('Customers/View', ['customerId' => $id]))->name('customer.view');
+Route::middleware('auth')->get('/customers/{id}/edit', fn($id) => Inertia::render('Customers/Edit', ['customerId' => $id]))->name('customer.edit');
 
 
 require __DIR__.'/auth.php';

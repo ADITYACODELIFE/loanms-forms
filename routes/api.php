@@ -55,3 +55,10 @@ Route::get('/loans/{id}', [LoanController::class, 'show']);
 Route::post('/loans/{id}/approve', [LoanController::class, 'approve']);
 Route::post('/loans/{id}/reject', [LoanController::class, 'reject']);
 Route::delete('/loans/{id}', [LoanController::class, 'destroy']);
+
+//customer routes
+Route::get('/customers', [CustomerController::class, 'index']);
+// Route::post('/customers', [CustomerController::class, 'store']); //handled in save-new-customer-for-new-loan route above
+Route::get('/customers/{id}', [CustomerController::class, 'show']);
+Route::post('/customers/{id}', [CustomerController::class, 'update']);
+Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);

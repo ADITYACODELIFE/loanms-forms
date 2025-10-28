@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Row, Col, Form, Button } from "react-bootstrap";
 import axios from "axios";
 
-export default function CustomerEligibilityForm({ customerId }) {
+export default function CustomerEligibilityForm({ customerId, onEligibilityChange  }) {
   const [formData, setFormData] = useState({
     customer_id: customerId || 0,
     gross_salary_amt: "",
@@ -115,11 +115,20 @@ export default function CustomerEligibilityForm({ customerId }) {
         formDatas.append(key, value);
       });
       const res = await axios.post("/api/check-eligibility", formDatas);
-      setResult(res.data); // expect backend to return calculated values
+      setResult(res.data.data); // expect backend to return calculated values
+      console.log("res.data: ",res.data);
+      console.log("is_eligible_for_loan: ",res.data.data.is_eligible_for_loan);
       setMessage("✅ Eligibility calculated successfully!");
+      const isEligible = res.data.data.is_eligible_for_loan === 1 && formData.customer_id !== 0;
+      if (typeof onEligibilityChange === "function") {
+        onEligibilityChange(isEligible);
+      }
     } catch (error) {
       console.error(error);
       setMessage("❌ Error calculating eligibility.");
+      if (typeof onEligibilityChange === "function") {
+        onEligibilityChange(false);
+      }
     }
   };
 
@@ -204,6 +213,30 @@ export default function CustomerEligibilityForm({ customerId }) {
                 step="0.01"
                 name="superannuation_amt"
                 value={formData.superannuation_amt}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group>
+              <Form.Label>Current Net Pay Amt. (PGK)</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="current_net_pay_amt"
+                value={formData.current_net_pay_amt}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group>
+              <Form.Label>Bank 2 Amt. (PGK)</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="bank_2_amt"
+                value={formData.bank_2_amt}
                 onChange={handleChange}
               />
             </Form.Group>

@@ -47,7 +47,7 @@ export default function Index({ auth }) {
         >
             <Head title="Loan Applications" />
             <div className="py-10">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-7">
                     {/* Top Action Bar */}
                     <div className="flex justify-between items-center bg-white shadow-sm sm:rounded-lg p-4">
                         <h3 className="text-lg font-semibold text-gray-700">

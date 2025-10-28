@@ -17,6 +17,7 @@ import CustomerEligibilityForm from '@/Components/CustomerEligibilityForm';
 import { ArrowLeft } from "lucide-react";
 
 export default function Create({ auth }) {
+    const [isEligible, setIsEligible] = useState(false);
     const [isFormDirty, setIsFormDirty] = useState(false);
     const [customers, setCustomers] = useState([]);
     const [companies, setCompanies] = useState([]);
@@ -672,15 +673,18 @@ export default function Create({ auth }) {
                                         {/* {loanFormData.customer_id && (
                                             <CustomerEligibilityForm key={loanFormData.customer_id} customerId={loanFormData.customer_id} />
                                         )} */}
-                                        <CustomerEligibilityForm customerId={loanFormData.customer_id} />
+                                        <CustomerEligibilityForm 
+                                            customerId={loanFormData.customer_id}
+                                            onEligibilityChange={(eligible) => setIsEligible(eligible)}
+                                        />
                                     </div>
                                 </fieldset>
-                                <fieldset className="fldset">
+                                <fieldset className="fldset" disabled={!isEligible}>
                                     <legend className="font-semibold">Loan Details</legend>
                                     <div className="row mb-3">
                                         <div className="col-md-4">
                                             <label className="form-label">Loan Type</label>
-                                            <select className="form-select cursor-not-allowed" disabled name="loan_type" value={loanFormData.loan_type || ""} onChange={loanHandleChange}>
+                                            <select className={`form-select ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="loan_type" value={loanFormData.loan_type || ""} onChange={loanHandleChange}>
                                                 <option>New</option>
                                                 <option>Consolidation</option>
                                                 <option>Rollover</option>
@@ -690,7 +694,7 @@ export default function Create({ auth }) {
 
                                         <div className="col-md-4">
                                             <label className="form-label">Purpose</label>
-                                            <select className="form-select cursor-not-allowed" disabled name="purpose" value={loanFormData.purpose || ""} onChange={loanHandleChange}>
+                                            <select className={`form-select ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="purpose" value={loanFormData.purpose || ""} onChange={loanHandleChange}>
                                                 <option value="">Select Purpose</option>
                                                 <option>Tuition</option>
                                                 <option>Living</option>
@@ -714,50 +718,50 @@ export default function Create({ auth }) {
                                     <div className="row mb-3">
                                         <div className="col-md-3">
                                             <label className="form-label">Loan Amount Applied</label>
-                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="loan_amount_applied" value={loanFormData.loan_amount_applied} onChange={loanHandleChange} required />
+                                            <input type="number" step="0.01" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="loan_amount_applied" value={loanFormData.loan_amount_applied} onChange={loanHandleChange} required />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Tenure (Fortnight)</label>
-                                            <input type="number" className="form-control" name="tenure_fortnight cursor-not-allowed" disabled value={loanFormData.tenure_fortnight} onChange={loanHandleChange} required />
+                                            <input type="number" className="form-control" name={`form-control tenure_fortnight ${!isEligible ? "cursor-not-allowed opacity-50":""}`} value={loanFormData.tenure_fortnight} onChange={loanHandleChange} required />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Interest Rate (%)</label>
-                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="interest_rate" value={loanFormData.interest_rate} onChange={loanHandleChange} />
+                                            <input type="number" step="0.01" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="interest_rate" value={loanFormData.interest_rate} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-3">
                                             <label className="form-label">Processing Fee</label>
-                                            <input type="number" step="0.01" className="form-control cursor-not-allowed" disabled name="processing_fee" value={loanFormData.processing_fee} onChange={loanHandleChange} />
+                                            <input type="number" step="0.01" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="processing_fee" value={loanFormData.processing_fee} onChange={loanHandleChange} />
                                         </div>
                                     </div>
 
                                     <div className="row mb-3">
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Name</label>
-                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_name" value={loanFormData.bank_name} onChange={loanHandleChange} />
+                                            <input type="text" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="bank_name" value={loanFormData.bank_name} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Branch</label>
-                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_branch" value={loanFormData.bank_branch} onChange={loanHandleChange} />
+                                            <input type="text" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="bank_branch" value={loanFormData.bank_branch} onChange={loanHandleChange} />
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">Bank Account No</label>
-                                            <input type="text" className="form-control cursor-not-allowed" disabled name="bank_account_no" value={loanFormData.bank_account_no} onChange={loanHandleChange} />
+                                            <input type="text" className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="bank_account_no" value={loanFormData.bank_account_no} onChange={loanHandleChange} />
                                         </div>
                                     </div>
 
                                     <div className="mb-3">
                                         <label className="form-label">Remarks</label>
-                                        <textarea className="form-control cursor-not-allowed" disabled name="remarks" rows="3" value={loanFormData.remarks} onChange={loanHandleChange}></textarea>
+                                        <textarea className={`form-control ${!isEligible ? "cursor-not-allowed opacity-50":""}`} name="remarks" rows="3" value={loanFormData.remarks} onChange={loanHandleChange}></textarea>
                                     </div>
                                 </fieldset>
                                     <Row className="mt-4 text-end">
                                         <Col>
-                                            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 mt-3 rounded text-center cursor-not-allowed" disabled>
+                                            <button type="submit" className={`bg-indigo-600 text-white px-4 py-2 mt-3 rounded text-center ${!isEligible ? "cursor-not-allowed opacity-50":""}`} disabled={!isEligible}>
                                                 Save & Upload Documents →
                                             </button>
                                         </Col>
