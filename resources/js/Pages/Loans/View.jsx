@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { router, Head, Link } from "@inertiajs/react";
+import { Card, Container, Row, Col, Alert, Form, Button, Tab, Tabs } from "react-bootstrap";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 //icon pack
@@ -66,18 +67,16 @@ export default function View({ auth, loanId }) {
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white shadow-sm sm:rounded-lg p-6">
                         {/* Top Action Bar */}
-                        <div className="flex justify-between items-center sm:rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-700">
-                                &nbsp;
-                            </h3>
-                            <Link
-                                href={route('loans')}
-                                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition whitespace-nowrap w-fit"
-                            >
-                                <ArrowLeft size={18} strokeWidth={2} />
-                                <span>Back to the List</span>
-                            </Link>
-                        </div>
+                        <Row className="mb-3 pb-4 pt-4">
+                            <Col className="d-flex justify-content-between align-items-center">
+                                <Link
+                                    href={route("loans")}
+                                    className="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md text-sm font-medium"
+                                >
+                                    <ArrowLeft size={16} className="me-1" /> Back to the List
+                                </Link>
+                            </Col>
+                        </Row>
                         {message && (
                             <div className="mb-4 text-center text-sm font-medium text-green-600">
                                 {message}
@@ -102,20 +101,22 @@ export default function View({ auth, loanId }) {
                                     </tbody>
                                 </table>
 
-                                <div className="mt-6 flex justify-center gap-4">
-                                    <button
-                                        onClick={handleApprove}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-                                    >
-                                        Approve
-                                    </button>
-                                    <button
-                                        onClick={handleReject}
-                                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
+                                {(loan.status === "Pending" ) && (
+                                    <div className="mt-6 flex justify-center gap-4">
+                                        <button
+                                            onClick={handleApprove}
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+                                        >
+                                            Approve
+                                        </button>
+                                        <button
+                                            onClick={handleReject}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <p>No loan found.</p>

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LoanApplication as Loan;
+use App\Models\Customer;
+//log
+use Illuminate\Support\Facades\Log;
 
 class LoanController extends Controller
 {
@@ -28,8 +31,8 @@ class LoanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'company_id' => 'required|exists:company_master,id',
-            'organisation_id' => 'required|exists:organisation_master,id',
+            // 'company_id' => 'required|exists:company_master,id',
+            // 'organisation_id' => 'required|exists:organisation_master,id',
             'customer_id' => 'required|exists:customers,id',
 
             'loan_type' => 'required|in:New,Consolidation,Rollover,Top-Up',
@@ -71,6 +74,11 @@ class LoanController extends Controller
                 $validated['isda_signed_upload_path'] = '/storage/' . $path;
             }
 
+            //get the company_id and organisation_id from customer_id
+            $customer = Customer::find($validated['customer_id']);
+            $validated['company_id'] = $customer->company_id;
+            $validated['organisation_id'] = $customer->organisation_id;
+
             // Default values for unset fields
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['approved_date'] = $validated['approved_date'] ?? null;
@@ -84,7 +92,7 @@ class LoanController extends Controller
                 'loan' => $loan,
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('LoanApplication store error: ' . $e->getMessage());
+            Log::error('LoanApplication store error: ' . $e->getMessage());
 
             return response()->json([
                 'error' => 'Unable to create loan application.',

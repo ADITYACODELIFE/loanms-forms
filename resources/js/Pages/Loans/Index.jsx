@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, Head, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Card, Container, Row, Col, Alert, Spinner } from "react-bootstrap";
 
 import { Pencil, Eye, Trash2 } from "lucide-react";
 
@@ -47,7 +48,7 @@ export default function Index({ auth }) {
         >
             <Head title="Loan Applications" />
             <div className="py-10">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-7">
+                <div className="max-w-9xl mx-auto sm:px-6 lg:px-8 space-y-7 custPadding">
                     {/* Top Action Bar */}
                     <div className="flex justify-between items-center bg-white shadow-sm sm:rounded-lg p-4">
                         <h3 className="text-lg font-semibold text-gray-700">
@@ -71,7 +72,10 @@ export default function Index({ auth }) {
                     {/* Loan Table */}
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         {loading ? (
-                            <div className="p-6 text-gray-500">Loading loans...</div>
+                            <div className="text-center py-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2 text-gray-600">Loading loans data...</p>
+                            </div>
                         ) : loans.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full text-sm text-gray-700 border border-gray-200">

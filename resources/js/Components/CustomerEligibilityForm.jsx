@@ -119,7 +119,8 @@ export default function CustomerEligibilityForm({ customerId, onEligibilityChang
       console.log("res.data: ",res.data);
       console.log("is_eligible_for_loan: ",res.data.data.is_eligible_for_loan);
       setMessage("✅ Eligibility calculated successfully!");
-      const isEligible = res.data.data.is_eligible_for_loan === 1 && formData.customer_id !== 0;
+      // const isEligible = res.data.data.is_eligible_for_loan === 1 && formData.customer_id !== 0;
+      const isEligible = res.data.data.is_eligible_for_loan === 1;
       if (typeof onEligibilityChange === "function") {
         onEligibilityChange(isEligible);
       }
@@ -170,6 +171,99 @@ export default function CustomerEligibilityForm({ customerId, onEligibilityChang
           </Col>
           <Col md={3}>
             <Form.Group>
+              <Form.Label>Current Net Pay Amt. (PGK)</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="current_net_pay_amt"
+                value={formData.current_net_pay_amt}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Proposed PVA (PGK)</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="proposed_pva_amt"
+                value={formData.proposed_pva_amt}
+                onChange={handleChange}
+                //border highlight
+                style={{border:"solid 2px green"}}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <fieldset className="fldset">
+          <legend className="legend">Deductions</legend>
+          <Row className="g-3 mt-2 p-3">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Tax Amount (PGK)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="tax_amt"
+                  value={formData.tax_amt}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Superannuation (PGK)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="superannuation_amt"
+                  value={formData.superannuation_amt}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Bank 2 Amt. (PGK)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="bank_2_amt"
+                  value={formData.bank_2_amt}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Current Fincorp Deduction (PGK)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="current_fincorp_deduction_amt"
+                  value={formData.current_fincorp_deduction_amt}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Other Deductions (PGK)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="other_deductions_amt"
+                  value={formData.other_deductions_amt}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </fieldset>
+        <Row className="g-3 mt-2">
+          <Col md={3}>
+            <Form.Group>
               <Form.Label>Temporary Allowances (PGK)</Form.Label>
               <Form.Control
                 type="number"
@@ -188,92 +282,6 @@ export default function CustomerEligibilityForm({ customerId, onEligibilityChang
                 step="0.01"
                 name="overtime_amt"
                 value={formData.overtime_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Tax Amount (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="tax_amt"
-                value={formData.tax_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Superannuation (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="superannuation_amt"
-                value={formData.superannuation_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Current Net Pay Amt. (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="current_net_pay_amt"
-                value={formData.current_net_pay_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Bank 2 Amt. (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="bank_2_amt"
-                value={formData.bank_2_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Other Deductions (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="other_deductions_amt"
-                value={formData.other_deductions_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Current Fincorp Deduction (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="current_fincorp_deduction_amt"
-                value={formData.current_fincorp_deduction_amt}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label>Proposed PVA (PGK)</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="proposed_pva_amt"
-                value={formData.proposed_pva_amt}
                 onChange={handleChange}
               />
             </Form.Group>

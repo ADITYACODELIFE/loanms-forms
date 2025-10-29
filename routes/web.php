@@ -56,6 +56,9 @@ Route::middleware('auth')->get('/customers', fn() => Inertia::render('Customers/
 Route::middleware('auth')->get('/customers/create', fn() => Inertia::render('Customers/Create'))->name('customer.create');
 Route::middleware('auth')->get('/customers/{id}', fn($id) => Inertia::render('Customers/View', ['customerId' => $id]))->name('customer.view');
 Route::middleware('auth')->get('/customers/{id}/edit', fn($id) => Inertia::render('Customers/Edit', ['customerId' => $id]))->name('customer.edit');
-
+// Loan Calculator route
+Route::get('/loan-calculator', function () {
+    return inertia('LoanCalculator/LoanCalculator');
+})->middleware(['auth', 'verified'])->name('loan-calculator');
 
 require __DIR__.'/auth.php';
