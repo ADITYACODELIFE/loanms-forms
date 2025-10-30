@@ -25,7 +25,14 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('homes');
+Route::get('/loan-application-form', function () {
+    return inertia('Forms/LoanApplicationForm');
+})->middleware(['auth', 'verified'])->name('loan-application.form');
+
+// Route::get('/loan-application-form', fn()=> Inertia::render('Forms/LoanApplicationForm'))->middleware(['auth', 'verified'])->name('loan.application.form');
+Route::get('/health-form', fn()=> Inertia::render('Forms/HealthPrintFormat'))->middleware(['auth', 'verified'])->name('loan.health.form');
+Route::get('/edu-form', fn()=> Inertia::render('Forms/EduPrintFormat'))->middleware(['auth', 'verified'])->name('loan.edu.form');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
