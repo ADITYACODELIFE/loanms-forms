@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CompanyMasterSeeder::class,
             OrganisationMasterSeeder::class,
-            CustomerSeeder::class
+            CustomerSeeder::class,
+            LoanSettingSeeder::class
         ]);
     }
 }
