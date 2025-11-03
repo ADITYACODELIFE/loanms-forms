@@ -20,6 +20,7 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@inertiajs/inertia": "^0.11.1",
         "agrippa": "^2.0.4",
         "bootstrap": "^5.3.8",
         "lucide-react": "^0.546.0",
